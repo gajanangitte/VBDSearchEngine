@@ -2,14 +2,14 @@
 import urllib.request,sys,time
 from bs4 import BeautifulSoup
 import requests
-from datetime import datetime
 from datetime import date
 
 # Change the terms to show results
 searchTerms = [ 'malaria cases' , 'dengue cases', 'japanese encephalitis cases' ,
 				'malaria deaths' , 'dengue deaths', 'japanese encephalitis deaths' ,
-				'malaria outbreak' , 'dengue outbreak', 'japanese encephalitis outbreak' , ]    
-
+				'malaria outbreak' , 'dengue outbreak', 'japanese encephalitis outbreak' ,
+				'vector borne disease' ]    
+# searchTerms = ['malaria cases']
 
 # SET UP THE FILE to store data
 filename="NEWS " + str(date.today()) +".csv"  
@@ -17,9 +17,8 @@ f=open(filename,"w", encoding = 'utf-8')
 headers="Disease,Source,Statement,Content, Date, Link\n"
 f.write(headers)
                 
-print('A PRODUCT MADE BY GAJANAN GITTE')
-print('MIT LICENSE 2020. COPYRIGHT GAJANAN GITTE')
-
+print('NATIONAL VECTOR BORNE DISEASE CONTROL PROGRAMME')
+print('VECTOR BORNE DISEASE SEARCH-ENGINE')
 
 pagesToGet= 1
 
@@ -67,9 +66,9 @@ for term in searchTerms:
      
 
 
-    # # #######################
-    # # Hindustan Times
-    # # #######################
+    # # # #######################
+    # # # Hindustan Times
+    # # # #######################
     for pageNo in range(1,pagesToGet+1):
         print('processing page :', pageNo)
         url = 'https://www.hindustantimes.com/search?q='+ term #+ "&pageno=" +str(pageNo)
@@ -119,9 +118,9 @@ for term in searchTerms:
             f.write(Disease + "," + Source + "," +  Statement.replace(',', '|') + "," + Content.replace(',', '|') + "," + Date.replace(',', '|') + "," + Link + "\n")
      
 
-    # #######################
-    # Aaj Tak HOINDIII
-    # #######################
+    # # #######################
+    # # Aaj Tak HOINDIII
+    # # #######################
     pagesToGet = 2
     for pageNo in range(1,pagesToGet+1):
         print('processing page :', pageNo)
@@ -196,7 +195,7 @@ for term in searchTerms:
             Statement = j.find('h3').find('a').text.strip()
             Link = j.find('h3').find("a")['href'].strip()
             Content = j.find('p').text.strip()
-            Date = j.find('time').text.strip()
+            Date = j.find('time').text.split(';')[-1].strip()
             
             # print(Source, Statement, Link, Content, Date)
             f.write(Disease + ',' + Source + "," +  " ".join(Statement.replace(',', '|').split()) + "," + " ".join(Content.replace(',', '|').split()) + "," + " ".join(Date.replace(',', '|').split()) + "," + " ".join(Link.split()) + "\n")
@@ -241,9 +240,78 @@ for term in searchTerms:
             
             # print( Source, Statement, Link, Content, Date)
             f.write(Disease + ',' + Source + "," +  " ".join(Statement.replace(',', '|').split()) + "," + " ".join(Content.replace(',', '|').split()) + "," + " ".join(Date.replace(',', '|').split()) + "," + " ".join(Link.split()) + "\n")
-  
+    
+
+        # # #######################
+	    # # NDTV NEWS
+	    # # #######################
+    pagesToGet = 1
+    for pageNo in range(1,pagesToGet+1):
+        print('processing page :', pageNo)
+        url = 'https://www.ndtv.com/search?searchtext=' + term
+        print(url)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1","DNT": "1","Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Language": "en-US,en;q=0.5","Accept-Encoding": "gzip, deflate"}
 
 
+        try:
+            page=requests.get(url,headers=headers)                           
+        
+        except Exception as e:                                   # this describes what to do if an exception is thrown
+            error_type, error_obj, error_info = sys.exc_info()      # get the exception information
+            print ('ERROR FOR LINK:',url)                          #print the link that cause the problem
+            print (error_type, 'Line:', error_info.tb_lineno)     #print error info and line that threw the exception
+            continue 
 
+         # Wait for 2 seconds 
+        time.sleep(2)         
+        print(page)
+         # Get page links 
+        soup = BeautifulSoup(page.text, "html.parser")
+        links = soup.find_all('li')
+
+        print( "Page "+str(pageNo) +" : " + str(len(links)) + " articles")
+
+
+        for j in links:
+            # print(j.get('style'))
+            # print(j)
+            if j.get('style') == "padding: 5px;":
+	            try:
+		            Disease = term.capitalize()
+		            Source = 'NDTV NEWS'
+		            Statement = j.find("p", attrs={'class' : 'header fbld'}).find('a')['title'].strip()
+		            Link = j.find("p", attrs={'class' : 'header fbld'}).find('a')['href'].strip()
+		            Content = j.find('p', attrs={'class': 'intro'}).text.strip()
+		            Date = j.find('p', attrs={'class': 'list_dateline'}).text.split('|')[2]
+		            f.write(Disease + ',' + Source + "," +  " ".join(Statement.replace(',', '|').split()) + "," + " ".join(Content.replace(',', '|').split()) + "," + " ".join(Date.replace(',', '|').split()) + "," + " ".join(Link.split()) + "\n")
+	            except:
+		            continue
+
+print('\n MADE BY GAJANAN SUNIL GITTE. MIT LICENSE 2020')
+time.sleep(2);
 #  THE END
 f.close()
+
+
+
+# MIT License
+
+# Copyright (c) 2020 Gajanan Gitte
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.

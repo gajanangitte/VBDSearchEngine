@@ -1,7 +1,10 @@
 # VBDSearchEngine
 A Python based desktop application(.exe) project to scrap data from currently 5 Indian news media-sites.
-At this moment the VBD - ie Vector Borne Diseases are Malaria, Dengue and Japanese Encephalitis
+At this moment the VBD - ie Vector Borne Diseases are Malaria, Dengue and Japanese Encephalitis.
+
+
 The news sites are : 
+
 	1. The Times of India
 	2. Indian Express
 	3. The Hindu
