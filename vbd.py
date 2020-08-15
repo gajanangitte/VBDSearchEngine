@@ -5,10 +5,10 @@ import requests
 from datetime import date
 
 # Change the terms to show results
-searchTerms = [ 'malaria cases' , 'dengue cases', 'japanese encephalitis cases' ,
-				'malaria deaths' , 'dengue deaths', 'japanese encephalitis deaths' ,
-				'malaria outbreak' , 'dengue outbreak', 'japanese encephalitis outbreak' ,
-				'vector borne disease' ]    
+searchTerms = [ 'malaria cases' , 'dengue cases', 'japanese encephalitis cases' ,]
+				# 'malaria deaths' , 'dengue deaths', 'japanese encephalitis deaths' ,
+				# 'malaria outbreak' , 'dengue outbreak', 'japanese encephalitis outbreak' ,
+				# 'vector borne disease' ]    
 # searchTerms = ['malaria cases']
 
 # SET UP THE FILE to store data
@@ -29,7 +29,7 @@ pagesToGet= 1
 for term in searchTerms:
     #######################
     # Times of India
-    #####################
+    ####################
     for pageNo in range(1,pagesToGet+1):
         print('processing page :', pageNo)
         url = 'https://timesofindia.indiatimes.com/topic/' + term +'/'+str(pageNo)
@@ -286,6 +286,51 @@ for term in searchTerms:
 		            f.write(Disease + ',' + Source + "," +  " ".join(Statement.replace(',', '|').split()) + "," + " ".join(Content.replace(',', '|').split()) + "," + " ".join(Date.replace(',', '|').split()) + "," + " ".join(Link.split()) + "\n")
 	            except:
 		            continue
+
+
+		
+    	# # #######################
+	    # #  The Hindu BussinessLine
+	    # # #######################
+    pagesToGet = 1
+    for pageNo in range(1,pagesToGet+1):
+        print('processing page :', pageNo)
+        url = 'https://www.thehindubusinessline.com/search/?q='+term+'&order=DESC&sort=publishdate'
+        print(url)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1","DNT": "1","Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Language": "en-US,en;q=0.5","Accept-Encoding": "gzip, deflate"}
+
+
+        try:
+            page=requests.get(url,headers=headers)                           
+        
+        except Exception as e:                                   # this describes what to do if an exception is thrown
+            error_type, error_obj, error_info = sys.exc_info()      # get the exception information
+            print ('ERROR FOR LINK:',url)                          #print the link that cause the problem
+            print (error_type, 'Line:', error_info.tb_lineno)     #print error info and line that threw the exception
+            continue 
+
+         # Wait for 2 seconds 
+        time.sleep(2)         
+        print(page)
+         # Get page links 
+        soup = BeautifulSoup(page.text, "html.parser")
+        links = soup.find_all('div', attrs={'class' : 'col-sm-9 col-sm-8'})
+
+        print( "Page "+str(pageNo) +" : " + str(len(links)) + " articles")
+
+
+        for j in links:
+	        Disease = term.capitalize()
+	        Source = 'THE HINDU BUSSINESSLINE'
+	        Statement = j.find("h3").find('a').text.strip()
+	        Link = j.find("h3").find('a')['href'].strip()
+	        Content = j.find_all('a')[1].find('p', attrs={'class' : 'ltext hidden-xs'}).text.strip()
+	        Date = j.find('span', attrs={'class': 'artdate'}).find('span').text.strip()
+        	# print(Statement, Link, Date, Content)
+        	f.write(Disease + ',' + Source + "," +  " ".join(Statement.replace(',', '|').split()) + "," + " ".join(Content.replace(',', '|').split()) + "," + " ".join(Date.replace(',', '|').split()) + "," + " ".join(Link.split()) + "\n")
+
+
+	    
 
 print('\n MADE BY GAJANAN SUNIL GITTE. MIT LICENSE 2020')
 time.sleep(2);
