@@ -23,7 +23,7 @@ print('VECTOR BORNE DISEASE SEARCH-ENGINE')
 pagesToGet= 1
 
 
-#  TOI, Hindustan Times, Aaj Tak hindi, Indian Express , The Hindu , Finanacial Express , Hindu BussinessLine, NDTV , tribune
+#  TOI, Hindustan Times, Aaj Tak hindi, Indian Express , The Hindu , Finanacial Express , Hindu BussinessLine, NDTV , tribune ,  patrika, jagran
 
 
 for term in searchTerms:
@@ -417,6 +417,95 @@ for term in searchTerms:
 	        except: 
 	        	pass
 
+	############################
+    ### PATRIKA
+    #############################
+    
+    pagesToGet = 1
+    for pageNo in range(1,pagesToGet+1):
+        print('processing page :', pageNo)
+        sterm = urllib.parse.quote_plus(term)
+
+        url = 'https://www.google.com/search?q='+sterm+'+site:www.patrika.com&domains=www.patrika.com&source=lnms&tbm=nws'
+        print(url)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1","DNT": "1","Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Language": "en-US,en;q=0.5","Accept-Encoding": "gzip, deflate"}
+
+
+        try:
+            page=requests.get(url,headers=headers)                           
+        
+        except Exception as e:                                   # this describes what to do if an exception is thrown
+            error_type, error_obj, error_info = sys.exc_info()      # get the exception information
+            print ('ERROR FOR LINK:',url)                          #print the link that cause the problem
+            print (error_type, 'Line:', error_info.tb_lineno)     #print error info and line that threw the exception
+            continue 
+
+         # Wait for 2 seconds 
+        time.sleep(2)         
+        print(page)
+         # Get page links 
+        soup = BeautifulSoup(page.text, "html.parser")
+        links = soup.find_all('div', attrs={'class' : 'dbsr'})
+
+        print( "Page "+str(pageNo) +" : " + str(len(links)) + " articles")
+        # print(links)
+
+        for j in links:
+        
+	        Disease = term.capitalize()
+	        Source = 'PATRIKA'
+	        Statement = j.find('div').find('div', attrs={'class' : 'hI5pFf'}).find('div', attrs={'class' : 'JheGif nDgy9d'}).text.strip()
+	        Link = j.find('a')['href'].strip()
+	        Content = j.find('div').find('div', attrs={'class' : 'hI5pFf'}).find('div', attrs={'class' : 'yJHHTd'}).find('div', attrs={'class' : 'Y3v8qd'}).text.strip()
+	        Date = j.find('div').find('div', attrs={'class' : 'hI5pFf'}).find('div', attrs={'class' : 'yJHHTd'}).find('div', attrs={'class' : 'wxp1Sb'}).find('span', attrs={'class' : 'YCV9ed isfR2'}).find('span', attrs={'class' : 'WG9SHc'}).find('span').text.strip()
+        	# print(Statement, Link, Date, Content)
+        	f.write(Disease + ',' + Source + "," +  " ".join(Statement.replace(',', '|').split()) + "," + " ".join(Content.replace(',', '|').split()) + "," + " ".join(Date.replace(',', '|').split()) + "," + " ".join(Link.split()) + "\n")
+
+    #############################
+    # ### JAGRAN
+    # #############################
+    
+    pagesToGet = 1
+    for pageNo in range(1,pagesToGet+1):
+        print('processing page :', pageNo)
+        # term = urllib.parse.quote_plus(term)
+
+        url = 'https://www.jagran.com/search/'+term
+        print(url)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1","DNT": "1","Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Language": "en-US,en;q=0.5","Accept-Encoding": "gzip, deflate"}
+
+
+        try:
+            page=requests.get(url,headers=headers)                           
+        
+        except Exception as e:                                   # this describes what to do if an exception is thrown
+            error_type, error_obj, error_info = sys.exc_info()      # get the exception information
+            print ('ERROR FOR LINK:',url)                          #print the link that cause the problem
+            print (error_type, 'Line:', error_info.tb_lineno)     #print error info and line that threw the exception
+            continue 
+
+         # Wait for 2 seconds 
+        time.sleep(2)         
+        print(page)
+         # Get page links 
+        soup = BeautifulSoup(page.text, "html.parser")
+        links = soup.find_all('div', attrs={'class' : 'protxt fr'})
+
+        print( "Page "+str(pageNo) +" : " + str(len(links)) + " articles")
+        # print(links)
+
+        for j in links:
+        
+	        Disease = term.capitalize()
+	        Source = 'JAGRAN'
+	        Statement = j.find('h3').find('a').text.strip()
+	        Link = j.find('h3').find('a')['href'].strip()
+	        Content = j.find('p').find('a').text.strip()
+	        Date = j.find('div', attrs={'class' : 'catBox'}).find('span', attrs={'class' : 'catDate'}).text.strip()
+        	# print(Statement, Link, Date, Content)
+        	f.write(Disease + ',' + Source + "," +  " ".join(Statement.replace(',', '|').split()) + "," + " ".join(Content.replace(',', '|').split()) + "," + " ".join(Date.replace(',', '|').split()) + "," + " ".join(Link.split()) + "\n")
+
+	       
 
 
 
